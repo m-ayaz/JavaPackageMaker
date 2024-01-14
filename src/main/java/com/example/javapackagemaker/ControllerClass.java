@@ -60,18 +60,24 @@ public class ControllerClass {
         String outPath=pathToOutputArea.getText();
         String modulePath=pathToModArea.getText();
         String currentPath=Path.of("").toAbsolutePath().toString();
-        if(name=="")
-            name="CoolApp";
-        if(desc=="")
-            desc="Created through JavaPackageMaker!";
-        if(jarPath=="")
-            jarPath=currentPath;
-        if(jarName=="")
-            jarName="cool-app";
-        if(outPath=="")
-            outPath=currentPath;
-        if(modulePath=="")
-            modulePath=currentPath;
+        if(name.equals("")) {
+            name = "CoolApp";
+        }
+        if(desc.equals("")) {
+            desc = "Created through JavaPackageMaker!";
+        }
+        if(jarPath.equals("")) {
+            jarPath = currentPath;
+        }
+        if(jarName.equals("")) {
+            jarName = "cool-app";
+        }
+        if(outPath.equals("")) {
+            outPath = currentPath;
+        }
+        if(modulePath.equals("")) {
+            modulePath = currentPath;
+        }
         desc="\""+desc+"\"";
         jarName+=".jar";
         String terminalCode=String.format("jpackage -t exe --name %s --description %s --app-version 1.0 --input %s --dest %s --main-jar %s --module-path %s --add-modules javafx.controls,javafx.media,javafx.fxml --win-shortcut --win-menu --win-dir-chooser --verbose",name,desc,jarPath,outPath,jarName,modulePath);
