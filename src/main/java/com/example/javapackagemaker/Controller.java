@@ -4,29 +4,30 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Controller {
 
-//    String jarFilePath;
-//    String jarFileName;
-//    String appName;
-//    String appVersion;
-
     FileChooser fileChooser = new FileChooser();
     FileChooser.ExtensionFilter jarExtension = new FileChooser.ExtensionFilter("JAR Files (*.jar)", "*.jar");
+    FileChooser.ExtensionFilter icoExtension = new FileChooser.ExtensionFilter("Icon Files (*.ico)", "*.ico");
+    FileChooser.ExtensionFilter txtExtension = new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt");
     File jarFile;
+    String icoFilePath;
+    String licenseFilePath;
+    String savePath;
     String command;
+    DirectoryChooser directoryChooser = new DirectoryChooser();
     @FXML
     private TextField appDescriptionArea;
     @FXML
     private TextField appNameArea;
-    @FXML
-    private TextField pathToModArea;
-    @FXML
-    private TextField pathToOutputArea;
     @FXML
     private TextArea terminalCodeArea;
     @FXML
@@ -47,90 +48,114 @@ public class Controller {
     private CheckBox winMenu;
     @FXML
     private CheckBox winShortcut;
+    @FXML
+    private Button browseOutputAppPathButton;
+    @FXML
+    private Button browseIconFileButton;
+    @FXML
+    private Button browseLicenseFileButton;
+    @FXML
+    private Label iconFilePathLabel;
+    @FXML
+    private Label jarFilePathLabel;
+    @FXML
+    private Label licenseFilePathLabel;
+    @FXML
+    private Label outputPathLabel;
+
+    @FXML
+    void browseIconFileButtonOnAction(ActionEvent event) {
+        fileChooser.getExtensionFilters().setAll(icoExtension);
+        try {
+            icoFilePath = fileChooser.showOpenDialog(new ContextMenu()).getAbsolutePath();
+            iconFilePathLabel.setText(icoFilePath);
+            update();
+        } catch (Exception ignored) {
+        }
+    }
 
     @FXML
     void browseJARFileButtonOnAction(ActionEvent event) {
-//        mainCanvasItemsHandler.selectAll();
-//        mainCanvasItemsHandler.removeSelectedObjectsFromMainCanvas();
-
-        fileChooser.getExtensionFilters().add(jarExtension);
+        fileChooser.getExtensionFilters().setAll(jarExtension);
         try {
             jarFile = fileChooser.showOpenDialog(new ContextMenu());
-//            System.out.println(file.getAbsolutePath());
-//            System.out.println(file.getPath());
-//            System.out.println(file.getAbsoluteFile());
-//            System.out.println(file.getCanonicalFile());
-//            System.out.println(file.getCanonicalPath());
-//            jarFileName = jarFile.getName();
-//            System.out.println(file.getParentFile());
-//            jarFilePath = jarFile.getParent();
+            jarFilePathLabel.setText(jarFile.getAbsolutePath());
+            update();
+        } catch (Exception ignored) {
+        }
+    }
+
+    @FXML
+    void browseLicenseFileButtonOnAction(ActionEvent event) {
+        fileChooser.getExtensionFilters().setAll(txtExtension);
+        try {
+            licenseFilePath = fileChooser.showOpenDialog(new ContextMenu()).getAbsolutePath();
+            licenseFilePathLabel.setText(licenseFilePath);
+            update();
+//            System.out.println("asl;asl");
+        } catch (Exception ignored) {
+        }
+    }
+
+    @FXML
+    void browseOutputAppPathButtonOnAction(ActionEvent event) {
+        try {
+            savePath = directoryChooser.showDialog(new ContextMenu()).getPath();
+            outputPathLabel.setText(savePath);
             update();
         } catch (Exception ignored) {
 
         }
-//        JSONArray jsonArray = new JSONArray(Files.readString(Path.of(filePath)));
-//        List<AppNode> appNodes=importProjectFromJSON(jsonArray);
-//        appNodes.forEach(appNode -> mainCanvasItemsHandler.addToMainCanvas(appNode));
-//        System.out.println("al;sla;sl;as");
     }
 
     @FXML
     void createButtonOnAction(ActionEvent event) {
-//        appName = appNameArea.getText();
-//        String desc = appDescArea.getText();
-////        String jarPath = jarFilePath.getText();
-////        String jarName = jarFileName.getText();
-//        String outPath = pathToOutputArea.getText();
-//        String modulePath = pathToModArea.getText();
-//        String version=appVersionArea.getText();
-//        String currentPath = Path.of("").toAbsolutePath().toString();
-//        if (appName.equals("")) {
-//            appName = "CoolApp";
-//        }
-//        if (desc.equals("")) {
-//            desc = "Created by JavaPackageMaker!";
-//        }
-////        if (jarPath.equals("")) {
-////            jarPath = currentPath;
-////        }
-////        if (jarName.equals("")) {
-////            jarName = "cool-app";
-////        }
-//        if (outPath.equals("")) {
-//            outPath = currentPath;
-//        }
-//        if (modulePath.equals("")) {
-//            modulePath = currentPath;
-//        }
-//        if(version.equals("")){
-//            version="1.0.0.0";
-//        }
-////        if(appVersionArea.equals("")){
-////
-////        }
-//        desc = "\"" + desc + "\"";
-////        jarName += ".jar";
-//        String terminalCode = String.format("jpackage -t exe --name %s --description %s --app-version 1.0 --input %s --dest %s --main-jar %s --module-path %s --add-modules javafx.controls,javafx.media,javafx.fxml --win-shortcut --win-menu --win-dir-chooser --verbose", name, desc, outPath, modulePath);
-//        terminalCodeArea.setWrapText(true);
-//        terminalCodeArea.setText(terminalCode);
-////        System.out.println("Text is "+pathToJarArea.getText());
-//        System.out.println(Path.of("").toAbsolutePath().toString());
+        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", command);
+        processBuilder.redirectErrorStream(true);
+        Process p;
+        try {
+            p = processBuilder.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        while (true) {
+            try {
+                line = r.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (line == null) {
+                break;
+            }
+            System.out.println(line);
+        }
     }
 
     void update() {
-//        System.out.println(jarFile);
-        if(jarFile!=null) {
+        if (jarFile != null) {
             command = "jpackage" +
                     " --input %s".formatted(jarFile.getParent()) +
                     " --main-jar %s".formatted(jarFile.getName()) +
+//                    " --type deb".formatted(appExtensionSelector.getValue()) +
                     " --type %s".formatted(appExtensionSelector.getValue()) +
-                    " --name %s".formatted(appNameArea.getText().equals("")?appNameArea.getPromptText():appNameArea.getText()) +
-                    " --dest %s".formatted(pathToOutputArea.getText().equals("")?jarFile.getParent():pathToOutputArea.getText()) +
-                    " --app-version %s".formatted(appVersionArea.getText().equals("")?appVersionArea.getPromptText():appVersionArea.getText()) +
+                    " --name %s".formatted(appNameArea.getText().equals("") ? appNameArea.getPromptText() : appNameArea.getText()) +
+                    " --dest %s".formatted(savePath == null ? jarFile.getParent() : savePath) +
+                    " --app-version %s".formatted(appVersionArea.getText().equals("") ? appVersionArea.getPromptText() : appVersionArea.getText()) +
                     (winDirChooser.isSelected() ? " --win-dir-chooser" : "") +
-                    (winShortcut.isSelected() ? " --win-shortcut" : "") +
-                    (winPerUserInstall.isSelected() ? " --win-per-user-install" : "") +
                     (winMenu.isSelected() ? " --win-menu" : "") +
+                    (winPerUserInstall.isSelected() ? " --win-per-user-install" : "") +
+                    (winShortcut.isSelected() ? " --win-shortcut" : "") +
+                    (licenseFilePath == null ? "" : " --license-file " + licenseFilePath) +
+                    " --win-help-url https://varzesh3.com" +
+                    " --win-shortcut-prompt" +
+                    " --win-update-url https://varzesh3.com" +
+                    " --about-url https://varzesh3.com" +
+
+//                    " --win-console"+
+                    (icoFilePath == null ? "" : " --icon " + icoFilePath) +
+
 //                " --win-help-url https://github.com".formatted() +
 //                " --win-shortcut-prompt".formatted() +
                     " --verbose";
@@ -148,8 +173,7 @@ public class Controller {
 //        pathToJarArea.setText("asdasda");
 //        mainPane
 //        pathToJarArea.setPromptText("<< current path >>");
-        pathToModArea.setPromptText("<< current path >>");
-        pathToOutputArea.setPromptText("<< current path >>");
+//        pathToOutputArea.setPromptText("<< current path >>");
         appDescriptionArea.setPromptText("Created by JavaPackageMaker!");
         appNameArea.setPromptText("CoolApp");
         appVersionArea.setPromptText("1.0.0.0");
@@ -170,24 +194,17 @@ public class Controller {
         appExtensionSelector.setValue("exe");
 
 
+        winDirChooser.selectedProperty().addListener((a, b, c) -> update());
+        winMenu.selectedProperty().addListener((a, b, c) -> update());
+        winShortcut.selectedProperty().addListener((a, b, c) -> update());
+        winPerUserInstall.selectedProperty().addListener((a, b, c) -> update());
 
+        appNameArea.textProperty().addListener((a, b, c) -> update());
+//        pathToOutputArea.textProperty().addListener((a,b,c)->update());
+        appDescriptionArea.textProperty().addListener((a, b, c) -> update());
+        appVersionArea.textProperty().addListener((a, b, c) -> update());
 
-
-
-
-
-
-
-
-        winDirChooser.selectedProperty().addListener((a,b,c)->update());
-        winMenu.selectedProperty().addListener((a,b,c)->update());
-        winShortcut.selectedProperty().addListener((a,b,c)->update());
-        winPerUserInstall.selectedProperty().addListener((a,b,c)->update());
-
-        appNameArea.textProperty().addListener((a,b,c)->update());
-        pathToOutputArea.textProperty().addListener((a,b,c)->update());
-        appDescriptionArea.textProperty().addListener((a, b, c)->update());
-
+        appExtensionSelector.valueProperty().addListener((a, b, c) -> update());
 
 
     }

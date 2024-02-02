@@ -12,9 +12,13 @@ public class MainClass extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainClass.class.getResource("JavaPackageDeploymentGUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 687, 511);
-        stage.setTitle("Java Package Maker");
+        stage.setTitle("Java Package Maker for Windows");
 //        stage.setResizable(false);
         stage.setScene(scene);
+
+//        System.out.println(MainClass.class.getResourceAsStream("a.png"));
+
+//        stage.getIcons().add(new Image(MainClass.class.getResourceAsStream("bb.bmp")));
         stage.show();
     }
 
